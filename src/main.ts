@@ -97,7 +97,7 @@ async function downloadEpisode() {
     // 添加图片到 ZIP
     for (const img of images) {
         const blob = img.img;
-        const imgName = `${img.index + 1}.jpg`;
+        const imgName = `${(img.index + 1).toString().padStart(3, '0')}.jpg`;
         zip.file(imgName, blob);
     }
 
