@@ -1,5 +1,6 @@
 import {defineConfig} from "vite";
 import monkey, {cdn} from "vite-plugin-monkey";
+import packageJson from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,6 +13,7 @@ export default defineConfig({
                 match: ["*://manga.bilibili.com/mc*/*"],
             },
             build: {
+                fileName: `${packageJson.name}_${packageJson.version}_.user.js`,
                 externalGlobals: {
                     jszip: cdn.jsdelivr("JSZip", "dist/jszip.min.js"),
                 },
