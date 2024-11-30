@@ -8,12 +8,15 @@ import "./hack";
 async function cacheCurrentEpisode() {
     const process_bar = document.querySelector(".range-input") as HTMLInputElement | null;
     if (process_bar === null) {
+        console.error("未找到进度条(.range-input)");
         return;
     }
-
-    process_bar.value = "0";
-    process_bar.dispatchEvent(new Event("input"));
-
+    // 如果进度条最大为1，则没必要动
+    if (parseInt(process_bar.max) !== 1) {
+        // 否则把进度条拉到开头
+        process_bar.value = "1";
+        process_bar.dispatchEvent(new Event("input"));
+    }
     while (true) {
         await new Promise<void>((resolve) => setTimeout(resolve, 10)); // 延迟 10ms
         if (parseInt(process_bar.value) !== parseInt(process_bar.max)) {
