@@ -12,5 +12,8 @@
     "typescript": "^5.4.5",
     "vite": "^5.2.12",
     "vite-plugin-monkey": "^4.0.0"
+  },
+  "dependencies": {
+    "jszip": "3.9.1"
   }
 }
