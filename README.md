@@ -15,7 +15,7 @@
 
 1. 安装油猴插件([如何安装油猴插件](https://github.com/lanyeeee/bilibili-manga-download-script/discussions/1))
 2. 前往[Release页面](https://github.com/lanyeeee/bilibili-manga-download-script/releases)下载脚本`bilibili-manga-download-script_x.x.x_.user.js`
-3. 将下载到的脚本安装到油猴插件中
+3. 将下载到的脚本安装到油猴插件中([如何将脚本安装到油猴插件中](https://github.com/lanyeeee/bilibili-manga-download-script/discussions/2))
 4. 点开任意一本漫画，会发现工具栏左右两边各多出了一个按钮
 5. 点击按钮开始下载
 
