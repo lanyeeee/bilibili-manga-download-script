@@ -1,4 +1,5 @@
 export interface Episode {
+    is_locked: boolean | null,
     comic_id: number | null,
     comic_title: string | null,
     short_title: string | null,

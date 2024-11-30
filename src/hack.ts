@@ -1,5 +1,5 @@
 import {Episode, Image} from "./types";
-import {BiliResp, GetEpisodeResp, GetImageIndexResp, GetImageTokenResp} from "./responses";
+import {BiliResp, GetEpisodeBuyInfoResp, GetEpisodeResp, GetImageIndexResp, GetImageTokenResp} from "./responses";
 import {store} from "./store";
 
 interface GetImageTokenPayload {
@@ -11,6 +11,10 @@ interface GetEpisodePayload {
 }
 
 interface GetImageIndexPayload {
+    ep_id: number;
+}
+
+interface GetEpisodeBuyInfoPayload {
     ep_id: number;
 }
 
@@ -53,7 +57,7 @@ function getImageDataLength(blob: Blob): Promise<number> {
 // 劫持 XMLHttpRequest.open 方法
 const originalOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function (method: string, url: string) {
-    if (["ImageToken?", "GetEpisode?", "GetImageIndex?"].some(s => url.includes(s))) {
+    if (["ImageToken?", "GetEpisode?", "GetImageIndex?", "GetEpisodeBuyInfo?"].some(s => url.includes(s))) {
         requestMap.set(this, {method, url});
     }
     return originalOpen.apply(this, arguments as any);
@@ -64,10 +68,6 @@ const originalSend = XMLHttpRequest.prototype.send;
 XMLHttpRequest.prototype.send = function (payload) {
     if (typeof payload !== "string") {
         return originalSend.call(this, payload);
-    }
-
-    if (payload.includes("urls")) {
-        payload = modifyImageTokenPayload(payload);
     }
 
     const xhr = this;
@@ -86,6 +86,7 @@ XMLHttpRequest.prototype.send = function (payload) {
             const getEpisodeResp = biliResp.data;
             if (!store.episodes[ep_id]) {
                 store.episodes[ep_id] = {
+                    is_locked: null,
                     comic_id: getEpisodeResp.comic_id,
                     comic_title: getEpisodeResp.comic_title,
                     short_title: getEpisodeResp.short_title,
@@ -116,6 +117,7 @@ XMLHttpRequest.prototype.send = function (payload) {
 
             if (!store.episodes[ep_id]) {
                 store.episodes[ep_id] = {
+                    is_locked: null,
                     comic_id: null,
                     comic_title: null,
                     short_title: null,
@@ -143,11 +145,11 @@ XMLHttpRequest.prototype.send = function (payload) {
                 originalOnLoad.call(xhr, arguments as any);
             }
 
-
         };
     }
 
     if (request_info.url.includes("ImageToken?")) {
+        payload = modifyImageTokenPayload(payload);
         const getImageTokenPayload = JSON.parse(payload) as GetImageTokenPayload;
         const path = getImageTokenPayload.urls[0];
         // 劫持 onload 事件
@@ -164,6 +166,21 @@ XMLHttpRequest.prototype.send = function (payload) {
             }
             if (originalOnLoad) {
                 originalOnLoad.call(xhr, arguments as any);
+            }
+        };
+    }
+
+    if (request_info.url.includes("GetEpisodeBuyInfo?")) {
+        const getEpisodeBuyInfoPayload = JSON.parse(payload) as GetEpisodeBuyInfoPayload;
+        const ep_id = getEpisodeBuyInfoPayload.ep_id;
+        const originalOnReadyStateChange = xhr.onreadystatechange;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                const biliResp = JSON.parse(xhr.responseText) as BiliResp<GetEpisodeBuyInfoResp>;
+                store.episodes[ep_id].is_locked = biliResp.data.is_locked;
+            }
+            if (originalOnReadyStateChange) {
+                originalOnReadyStateChange.call(xhr, arguments as any);
             }
         };
     }
